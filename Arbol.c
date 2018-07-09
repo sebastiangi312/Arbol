@@ -27,6 +27,7 @@ void ImprimirOperadorNum(char dato);
 void ResolverArbol(Nodo *ptrRaiz);
 Nodo* CopiarArbol(Nodo *ptrRaiz);
 bool Verificacion(Nodo *ptrNodo);
+char ResolverNodo(Nodo **ptrNodo);
 
 int main() {
 	Pila *ptrPila=NULL;
@@ -34,7 +35,7 @@ int main() {
 	Nodo *ptrActual=NULL;
 	int Eleccion;
 	char dato;
-	printf("Digite 1 para agregar un dato u operador,2 para Mostrar el arbol y 3 para resolver el arbol y 4 para acabar la ejecucion\n");
+	printf("Digite 1 para agregar un dato u operador,2 para Mostrar el arbol,3 para resolver el arbol y 4 para acabar la ejecucion\n");
 	scanf("%d",&Eleccion);
 	while(Eleccion!=4){
 		switch(Eleccion){
@@ -50,7 +51,7 @@ int main() {
 				ResolverArbol(ptrRaiz);
 				break;
 		}
-		printf("Digite 1 para agregar un dato y 2 para Mostrar el arbol\n");
+		printf("Digite 1 para agregar un dato,2 para Mostrar el arbol,3 para resolverlo y 4 para acabar con la ejecucion\n");
 		scanf("%d",&Eleccion);
 	}
 	return 0;
@@ -230,14 +231,29 @@ int Niveles(Nodo *ptrRaiz){		//funcion que calcula y devuelve el numero de nivel
 void ResolverArbol(Nodo *ptrRaiz){
 	Pila *ptrPila = NULL;
 	Nodo *ptrRaizCopiado= CopiarArbol(ptrRaiz);
-	Nodo *ptrActualCopiado=ptrRaizCopiado;
-	ImprimirVertical(ptrRaizCopiado);
-	while(ptrActualCopiado->ptrIzq!=NULL){
-		AgregarPila(&ptrPila,ptrActualCopiado);
-		ptrActualCopiado=ptrActualCopiado->ptrIzq;
+	if(ptrRaizCopiado!=NULL){
+		Nodo *ptrActualCopiado=ptrRaizCopiado;
+		ImprimirVertical(ptrRaizCopiado);
+		while(ptrActualCopiado->ptrIzq!=NULL){
+			AgregarPila(&ptrPila,ptrActualCopiado);
+			ptrActualCopiado=ptrActualCopiado->ptrIzq;
+		}
+		Nodo *ptrPadre=EliminarPila(&ptrPila);
+		if(ptrPadre==NULL){
+			printf("El Arbol es de un solo nivel\n");
+		}else{
+			ptrActualCopiado=ptrPadre;
+			if(ptrActualCopiado!=NULL){
+				bool Verificar = Verificacion(ptrActualCopiado);
+				if(Verificar==true){
+					ResolverNodo(&ptrActualCopiado);
+				}else{
+					printf("El Arbol es Invalido\n");
+				}
+			}	
+		}
+		
 	}
-	ptrActualCopiado=EliminarPila(&ptrPila);
-	bool Verificar = Verificacion(ptrActualCopiado);
 	
 }
 
@@ -276,9 +292,7 @@ Nodo* CopiarArbol(Nodo *ptrRaiz){
 	int *ptrNivelActual=&nivelActual;
 	Nodo *ptrRaizNuevo=NULL;
 	Nodo *ptrActualNuevo=ptrRaizNuevo;
-	if(ptrRaiz==NULL){					//Si el puntero a la Raiz no apunta a nada este imprimira que el arbol esta vacio.
-		printf("El arbol esta vacio\n");
-	}else{
+	if(ptrRaiz!=NULL){
 		AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->dato);
 		NivelMax--;
 		while(ptrActual->ptrIzq!=NULL){		//Mientras el puntero Actual tenga un hijo izquierdo, este verificara si tiene hijo derecho, en caso de no tener
@@ -291,6 +305,8 @@ Nodo* CopiarArbol(Nodo *ptrRaiz){
 				Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux);
 			}
 		}
+	}else{
+		printf("El arbol esta vacio\n");
 	}
 	return ptrRaizNuevo;
 }
@@ -299,57 +315,90 @@ bool Verificacion(Nodo *ptrNodo){
 	bool Padre=true;
 	bool Der=true;
 	bool Izq=true;
-	switch(ptrNodo->dato){
-		case '+':
-			Padre=false;
-			break;
-		case '-':
-			Padre=false;
-			break;
-		case '*':
-			Padre=false;
-			break;
-		case '/':
-			Padre=false;
-			break;
-		default:
-			break;
-	}
-	switch(ptrNodo->ptrDer->dato){
-		case '+':
-			Der=false;
-			break;
-		case '-':
-			Der=false;
-			break;
-		case '*':
-			Der=false;
-			break;
-		case '/':
-			Der=false;
-			break;
-		default:
-			break;
-	}
-	switch(ptrNodo->ptrIzq->dato){
-		case '+':
-			Izq=false;
-			break;
-		case '-':
-			Izq=false;
-			break;
-		case '*':
-			Izq=false;
-			break;
-		case '/':
-			Izq=false;
-			break;
-		default:
-			break;
-	}
-	if(Padre==false && Izq==true && Der==true){
-		return true;
-	}else{
+	if(ptrNodo->ptrDer==NULL || ptrNodo->ptrIzq==NULL){
 		return false;
+	}else{
+		switch(ptrNodo->dato){
+			case '+':
+				Padre=false;
+				break;
+			case '-':
+				Padre=false;
+				break;
+			case '*':
+				Padre=false;
+				break;
+			case '/':
+				Padre=false;
+				break;
+			default:
+				break;
+		}
+		switch(ptrNodo->ptrDer->dato){
+			case '+':
+				Der=false;
+				break;
+			case '-':
+				Der=false;
+				break;
+			case '*':
+				Der=false;
+				break;
+			case '/':
+				Der=false;
+				break;
+			default:
+				break;
+		}
+		switch(ptrNodo->ptrIzq->dato){
+			case '+':
+				Izq=false;
+				break;
+			case '-':
+				Izq=false;
+				break;
+			case '*':
+				Izq=false;
+				break;
+			case '/':
+				Izq=false;
+				break;
+			default:
+				break;
+		}
+		if(Padre==false && Izq==true && Der==true){
+			return true;
+		}else{
+			return false;
+		}
 	}
+}
+
+char ResolverNodo(Nodo **ptrNodo){
+	int Izq = (*ptrNodo)->ptrIzq->dato;
+	int Der = (*ptrNodo)->ptrDer->dato;
+	switch((*ptrNodo)->dato){
+		case '+':
+			(*ptrNodo)->dato=(Izq-48)+(Der-48)+48;
+			printf("%d\n",(Izq-48)+(Der-48));
+			break;
+		case '-':
+			(*ptrNodo)->dato=(Izq-48)-(Der-48)+48;
+			printf("%d\n",(Izq-48)-(Der-48));
+			break;
+		case '*':
+			(*ptrNodo)->dato=(Izq-48)*(Der-48)+48;
+			printf("%d\n",(Izq-48)*(Der-48));
+			break;
+		case '/':
+			(*ptrNodo)->dato=(Izq-48)/(Der-48)+48;
+			printf("%d\n",(Izq-48)/(Der-48));
+			break;
+	}
+	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
+	(*ptrNodo)->ptrIzq=NULL;
+	free(ptrAux);
+	ptrAux=(*ptrNodo)->ptrDer;
+	(*ptrNodo)->ptrDer=NULL;
+	free(ptrAux);
 }
