@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdbool.h>
 
 typedef struct nodo{				//Estructura de tipo nodo en la cual se almacenan el dato y las referencias a los hijos
 	char dato;
@@ -25,6 +26,7 @@ int Niveles(Nodo *ptrRaiz);
 void ImprimirOperadorNum(char dato);
 void ResolverArbol(Nodo *ptrRaiz);
 Nodo* CopiarArbol(Nodo *ptrRaiz);
+bool Verificacion(Nodo *ptrNodo);
 
 int main() {
 	Pila *ptrPila=NULL;
@@ -235,7 +237,7 @@ void ResolverArbol(Nodo *ptrRaiz){
 		ptrActualCopiado=ptrActualCopiado->ptrIzq;
 	}
 	ptrActualCopiado=EliminarPila(&ptrPila);
-	
+	bool Verificar = Verificacion(ptrActualCopiado);
 	
 }
 
@@ -291,4 +293,63 @@ Nodo* CopiarArbol(Nodo *ptrRaiz){
 		}
 	}
 	return ptrRaizNuevo;
+}
+
+bool Verificacion(Nodo *ptrNodo){
+	bool Padre=true;
+	bool Der=true;
+	bool Izq=true;
+	switch(ptrNodo->dato){
+		case '+':
+			Padre=false;
+			break;
+		case '-':
+			Padre=false;
+			break;
+		case '*':
+			Padre=false;
+			break;
+		case '/':
+			Padre=false;
+			break;
+		default:
+			break;
+	}
+	switch(ptrNodo->ptrDer->dato){
+		case '+':
+			Der=false;
+			break;
+		case '-':
+			Der=false;
+			break;
+		case '*':
+			Der=false;
+			break;
+		case '/':
+			Der=false;
+			break;
+		default:
+			break;
+	}
+	switch(ptrNodo->ptrIzq->dato){
+		case '+':
+			Izq=false;
+			break;
+		case '-':
+			Izq=false;
+			break;
+		case '*':
+			Izq=false;
+			break;
+		case '/':
+			Izq=false;
+			break;
+		default:
+			break;
+	}
+	if(Padre==false && Izq==true && Der==true){
+		return true;
+	}else{
+		return false;
+	}
 }
