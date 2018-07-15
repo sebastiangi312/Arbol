@@ -244,12 +244,31 @@ void ResolverArbol(Nodo *ptrRaiz){
 		}else{
 			ptrActualCopiado=ptrPadre;
 			if(ptrActualCopiado!=NULL){
-				bool Verificar = Verificacion(ptrActualCopiado);
-				if(Verificar==true){
-					ResolverNodo(&ptrActualCopiado);
-				}else{
-					printf("El Arbol es Invalido\n");
+				while(ptrActualCopiado!=ptrRaizCopiado){
+					bool Verificar = Verificacion(ptrActualCopiado);
+					if(Verificar==true){
+						ResolverNodo(&ptrActualCopiado);
+						EncontrarSiguiente(&ptrActualCopiado,&ptrPila);
+						Nodo *ptrPadre=EliminarPila(&ptrPila);
+						if(ptrPadre!=NULL){
+							ptrActualCopiado=ptrPadre;
+						}
+					}else{
+						printf("El Arbol es Invalido\n");
+						break;
+						break;
+					}
 				}
+				bool Verificar = Verificacion(ptrActualCopiado);
+					if(Verificar==true){
+						ResolverNodo(&ptrActualCopiado);
+						EncontrarSiguiente(&ptrActualCopiado,&ptrPila);
+						Nodo *ptrPadre=EliminarPila(&ptrPila);
+						if(ptrPadre!=NULL){
+							ptrActualCopiado=ptrPadre;
+						}
+					}
+				printf("El Arbol da como resultado %c\n",ptrActualCopiado->dato);
 			}	
 		}
 		
@@ -380,19 +399,15 @@ char ResolverNodo(Nodo **ptrNodo){
 	switch((*ptrNodo)->dato){
 		case '+':
 			(*ptrNodo)->dato=(Izq-48)+(Der-48)+48;
-			printf("%d\n",(Izq-48)+(Der-48));
 			break;
 		case '-':
 			(*ptrNodo)->dato=(Izq-48)-(Der-48)+48;
-			printf("%d\n",(Izq-48)-(Der-48));
 			break;
 		case '*':
 			(*ptrNodo)->dato=(Izq-48)*(Der-48)+48;
-			printf("%d\n",(Izq-48)*(Der-48));
 			break;
 		case '/':
 			(*ptrNodo)->dato=(Izq-48)/(Der-48)+48;
-			printf("%d\n",(Izq-48)/(Der-48));
 			break;
 	}
 	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
