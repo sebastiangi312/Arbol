@@ -16,21 +16,21 @@ typedef struct pila{
 	struct pila *ptrSiguiente;
 }Pila;
 
-int CalculoDigitos(char dato[7]);
-int NumeroMasLargo(Nodo *ptrRaiz);
-void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo);
-Nodo* EliminarPila(Pila **ptrInicio);
 void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]);
-void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila);
-void ImprimirVertical(Nodo *ptrRaiz);
-void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos);
-int Niveles(Nodo *ptrRaiz);
-void ImprimirOperadorNum(char dato[7]);
-void ResolverArbol(Nodo *ptrRaiz);
+void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo);
+int CalculoDigitos(char dato[7]);
 Nodo* CopiarArbol(Nodo *ptrRaiz);
-bool Verificacion(Nodo *ptrNodo);
-char ResolverNodo(Nodo **ptrNodo);
+Nodo* EliminarPila(Pila **ptrInicio);
+void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila);
 bool EsNumero(char dato);
+void ImprimirOperadorNum(char dato[7]);
+void ImprimirVertical(Nodo *ptrRaiz);
+int Niveles(Nodo *ptrRaiz);
+int NumeroMasLargo(Nodo *ptrRaiz);
+void ResolverArbol(Nodo *ptrRaiz);
+char ResolverNodo(Nodo **ptrNodo);
+void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos);
+bool Verificacion(Nodo *ptrNodo);
 
 int main() {
 	Pila *ptrPila=NULL;
@@ -96,6 +96,79 @@ void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]){ 
 		}
 	}
 }
+
+void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo){			//Pila en la cual se guardaran las direcciones de los Nodos padres.
+
+	if(*ptrInicio==NULL){									//Si la Pila esta vacia este le agrega el primer dato, almacena la direccion del Nodo Padre y actualiza el puntero a la pila.
+		Pila *ptrAux=(Pila*)malloc(sizeof(Pila));
+		ptrAux->ptrAnterior=ptrNodo;
+		ptrAux->ptrSiguiente=NULL;
+		*ptrInicio=ptrAux;
+	}else{													//En caso de que esta no esta vacia agrega un dato,hace que este guarde la referencia al que hay al lado de el y actualiza el puntero a la pila.
+		Pila *ptrAux=(Pila*)malloc(sizeof(Pila));
+		ptrAux->ptrAnterior=ptrNodo;
+		ptrAux->ptrSiguiente=*ptrInicio;
+		*ptrInicio=ptrAux;
+	}
+}
+
+int CalculoDigitos(char dato[7]){
+	int digitos=0;
+	int i;
+	for(i=0;i<6;i++){
+		if(EsNumero(dato[i])==true){
+			digitos++;
+		}else{
+			break;
+		}
+	}
+	return digitos-1;
+}
+
+
+
+Nodo* CopiarArbol(Nodo *ptrRaiz){
+	Pila *ptrPila=NULL;
+	Pila *ptrPilaNueva=NULL;
+	Nodo *ptrActual=ptrRaiz;
+	int nivelActual,nivelAux;
+	int NivelMax=Niveles(ptrRaiz);		//Mediante la funcion Niveles se calcula la cantidad de niveles que tiene el arbol.
+	nivelActual=0;
+	nivelAux=0;
+	int *ptrNivelAux=&nivelAux;
+	int *ptrNivelMax=&NivelMax;
+	int *ptrNivelActual=&nivelActual;
+	Nodo *ptrRaizNuevo=NULL;
+	Nodo *ptrActualNuevo=ptrRaizNuevo;
+	if(ptrRaiz!=NULL){
+		AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->dato);
+		NivelMax--;
+		while(ptrActual->ptrIzq!=NULL){		//Mientras el puntero Actual tenga un hijo izquierdo, este verificara si tiene hijo derecho, en caso de no tener
+			if(ptrActual->ptrDer==NULL){	//se da por sentado que este es el ultimo dato del arbol. 
+				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrIzq->dato);
+				break;
+			}else{
+				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrIzq->dato);
+				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrDer->dato);
+				Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
+			}
+		}
+	}else{
+		printf("El arbol esta vacio\n");
+	}
+	return ptrRaizNuevo;
+}
+
+Nodo* EliminarPila(Pila **ptrInicio){				//Si la Pila tiene datos devuelve el ultimo y en caso de estar vacia devuelve NULL.
+	if(*ptrInicio!=NULL){
+		Nodo *ptrAux=(*ptrInicio)->ptrAnterior;
+		*ptrInicio=(*ptrInicio)->ptrSiguiente;
+		return ptrAux;
+	}else{
+		return NULL;
+	}
+}
+
 void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila){	//Funcion que se encarga de reubicar el puntero actual al nodo en el cual debe ingresarse el siguiente dato.
 
 	Nodo *ptrPadre=EliminarPila(ptrPila);		//Esta funcion crea un puntero llamado puntero Padre y en el ingresara el la referencia del padre del puntero actual atravez de la pila,Aqui se pueden dar 2 casos. 
@@ -120,27 +193,42 @@ void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila){	//Funcion que se encar
 	}
 }
 
-void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo){			//Pila en la cual se guardaran las direcciones de los Nodos padres.
-
-	if(*ptrInicio==NULL){									//Si la Pila esta vacia este le agrega el primer dato, almacena la direccion del Nodo Padre y actualiza el puntero a la pila.
-		Pila *ptrAux=(Pila*)malloc(sizeof(Pila));
-		ptrAux->ptrAnterior=ptrNodo;
-		ptrAux->ptrSiguiente=NULL;
-		*ptrInicio=ptrAux;
-	}else{													//En caso de que esta no esta vacia agrega un dato,hace que este guarde la referencia al que hay al lado de el y actualiza el puntero a la pila.
-		Pila *ptrAux=(Pila*)malloc(sizeof(Pila));
-		ptrAux->ptrAnterior=ptrNodo;
-		ptrAux->ptrSiguiente=*ptrInicio;
-		*ptrInicio=ptrAux;
+bool EsNumero(char dato){
+	if(dato=='.' || dato=='0' || dato=='1' || dato=='2' || dato=='3' || dato=='4' || dato=='5' || dato=='6' || dato=='7' || dato=='8' || dato=='9'){
+		return true;
+	}else{
+		return false;
 	}
 }
-Nodo* EliminarPila(Pila **ptrInicio){				//Si la Pila tiene datos devuelve el ultimo y en caso de estar vacia devuelve NULL.
-	if(*ptrInicio!=NULL){
-		Nodo *ptrAux=(*ptrInicio)->ptrAnterior;
-		*ptrInicio=(*ptrInicio)->ptrSiguiente;
-		return ptrAux;
-	}else{
-		return NULL;
+
+void ImprimirOperadorNum(char dato[7]){
+	int i=0;
+	switch(dato[0]){
+		case '+':
+			printf("+");
+			break;
+		case '-':
+			printf("-");
+			break;
+		case '*':
+			printf("*");
+			break;
+		case '/':
+			printf("/");
+			break;
+		default:
+			for(i=0;i<6;i++){
+				if(EsNumero(dato[i])==true){
+					if(dato[i]!='.'){
+						printf("%d",dato[i]-48);
+					}else{
+						printf(".");
+					}
+				}else{
+					break;
+				}
+			}
+			break;
 	}
 }
 
@@ -197,38 +285,6 @@ void ImprimirVertical(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma v
 	} 
 }
 
-void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos){
-	Nodo *ptrPadre=EliminarPila(ptrPila);	
-	int NE,i;
-	if(ptrPadre==NULL){
-		*NivelMax=*NivelMax-1;
-		*nivel=*nivel+1;
-		for(i=0;i<*nivel;i++){
-			AgregarPila(ptrPila,*ptrActual);
-			*ptrActual=(*ptrActual)->ptrIzq;
-			*NivelAux=*NivelAux+1;
-		}
-		printf("\n");
-		NE=pow(2,*NivelMax)-1+digitos;
-		for(i=0;i<NE;i++){
-			printf(" ");
-		}
-	}else{
-		if(ptrPadre->ptrDer!=*ptrActual){			
-			AgregarPila(ptrPila,ptrPadre);			
-			*ptrActual=ptrPadre->ptrDer;
-			for(i=0;i<*nivel-*NivelAux;i++){
-				AgregarPila(ptrPila,*ptrActual);
-				*ptrActual=(*ptrActual)->ptrIzq;
-			}
-			*NivelAux=*nivel;
-		}else{
-			*ptrActual=ptrPadre;					
-			*NivelAux=*NivelAux-1;
-			Reubicar(ptrActual,ptrPila,NivelMax,nivel,NivelAux,0);
-		}
-	}
-}
 int Niveles(Nodo *ptrRaiz){		//funcion que calcula y devuelve el numero de niveles.
 	Nodo *ptrAux=ptrRaiz;
 	int Nivel=0;
@@ -241,6 +297,36 @@ int Niveles(Nodo *ptrRaiz){		//funcion que calcula y devuelve el numero de nivel
 	return Nivel;
 }
 
+int NumeroMasLargo(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma vertical el arbol
+	Pila *ptrPila=NULL;
+	Nodo *ptrActual=ptrRaiz;
+	int EspInicio,i,EspMedio,nivelActual,nivelAux;
+	int NivelMax=Niveles(ptrRaiz);		//Mediante la funcion Niveles se calcula la cantidad de niveles que tiene el arbol.
+	nivelActual=0;
+	nivelAux=0;
+	int *ptrNivelAux=&nivelAux;
+	int *ptrNivelMax=&NivelMax;
+	int *ptrNivelActual=&nivelActual;
+	int digitos=CalculoDigitos(ptrActual->dato); 	//se imprimira el dato y pasara a la siguiente linea y restara en 1 la cantidad de niveles.
+	NivelMax--;
+	while(ptrActual->ptrIzq!=NULL){		//Mientras el puntero Actual tenga un hijo izquierdo, este verificara si tiene hijo derecho, en caso de no tener
+		if(ptrActual->ptrDer==NULL){	//se da por sentado que este es el ultimo dato del arbol. 
+			if(CalculoDigitos(ptrActual->ptrIzq->dato)>digitos){
+				digitos=CalculoDigitos(ptrActual->ptrIzq->dato);
+			}
+			break;
+		}else{
+			if(CalculoDigitos(ptrActual->ptrIzq->dato)>digitos){
+				digitos=CalculoDigitos(ptrActual->ptrIzq->dato);
+			}
+			if(CalculoDigitos(ptrActual->ptrDer->dato)>digitos){
+				digitos=CalculoDigitos(ptrActual->ptrDer->dato);
+			}
+			Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
+		}
+	}
+	return digitos;
+} 
 
 void ResolverArbol(Nodo *ptrRaiz){
 	Pila *ptrPila = NULL;
@@ -288,69 +374,62 @@ void ResolverArbol(Nodo *ptrRaiz){
 	}
 }
 
-
-void ImprimirOperadorNum(char dato[7]){
-	int i=0;
-	switch(dato[0]){
+char[7] ResolverNodo(Nodo **ptrNodo){
+	int Izq = (*ptrNodo)->ptrIzq->dato;
+	int Der = (*ptrNodo)->ptrDer->dato;
+	switch((*ptrNodo)->dato){
 		case '+':
-			printf("+");
+			(*ptrNodo)->dato=(Izq-48)+(Der-48)+48;
 			break;
 		case '-':
-			printf("-");
+			(*ptrNodo)->dato=(Izq-48)-(Der-48)+48;
 			break;
 		case '*':
-			printf("*");
+			(*ptrNodo)->dato=(Izq-48)*(Der-48)+48;
 			break;
 		case '/':
-			printf("/");
-			break;
-		default:
-			for(i=0;i<6;i++){
-				if(EsNumero(dato[i])==true){
-					if(dato[i]!='.'){
-						printf("%d",dato[i]-48);
-					}else{
-						printf(".");
-					}
-				}else{
-					break;
-				}
-			}
+			(*ptrNodo)->dato=(Izq-48)/(Der-48)+48;
 			break;
 	}
+	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
+	(*ptrNodo)->ptrIzq=NULL;
+	free(ptrAux);
+	ptrAux=(*ptrNodo)->ptrDer;
+	(*ptrNodo)->ptrDer=NULL;
+	free(ptrAux);
 }
 
-
-Nodo* CopiarArbol(Nodo *ptrRaiz){
-	Pila *ptrPila=NULL;
-	Pila *ptrPilaNueva=NULL;
-	Nodo *ptrActual=ptrRaiz;
-	int nivelActual,nivelAux;
-	int NivelMax=Niveles(ptrRaiz);		//Mediante la funcion Niveles se calcula la cantidad de niveles que tiene el arbol.
-	nivelActual=0;
-	nivelAux=0;
-	int *ptrNivelAux=&nivelAux;
-	int *ptrNivelMax=&NivelMax;
-	int *ptrNivelActual=&nivelActual;
-	Nodo *ptrRaizNuevo=NULL;
-	Nodo *ptrActualNuevo=ptrRaizNuevo;
-	if(ptrRaiz!=NULL){
-		AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->dato);
-		NivelMax--;
-		while(ptrActual->ptrIzq!=NULL){		//Mientras el puntero Actual tenga un hijo izquierdo, este verificara si tiene hijo derecho, en caso de no tener
-			if(ptrActual->ptrDer==NULL){	//se da por sentado que este es el ultimo dato del arbol. 
-				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrIzq->dato);
-				break;
-			}else{
-				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrIzq->dato);
-				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrDer->dato);
-				Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
-			}
+void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos){
+	Nodo *ptrPadre=EliminarPila(ptrPila);	
+	int NE,i;
+	if(ptrPadre==NULL){
+		*NivelMax=*NivelMax-1;
+		*nivel=*nivel+1;
+		for(i=0;i<*nivel;i++){
+			AgregarPila(ptrPila,*ptrActual);
+			*ptrActual=(*ptrActual)->ptrIzq;
+			*NivelAux=*NivelAux+1;
+		}
+		printf("\n");
+		NE=pow(2,*NivelMax)-1+digitos;
+		for(i=0;i<NE;i++){
+			printf(" ");
 		}
 	}else{
-		printf("El arbol esta vacio\n");
+		if(ptrPadre->ptrDer!=*ptrActual){			
+			AgregarPila(ptrPila,ptrPadre);			
+			*ptrActual=ptrPadre->ptrDer;
+			for(i=0;i<*nivel-*NivelAux;i++){
+				AgregarPila(ptrPila,*ptrActual);
+				*ptrActual=(*ptrActual)->ptrIzq;
+			}
+			*NivelAux=*nivel;
+		}else{
+			*ptrActual=ptrPadre;					
+			*NivelAux=*NivelAux-1;
+			Reubicar(ptrActual,ptrPila,NivelMax,nivel,NivelAux,0);
+		}
 	}
-	return ptrRaizNuevo;
 }
 
 bool Verificacion(Nodo *ptrNodo){
@@ -414,82 +493,5 @@ bool Verificacion(Nodo *ptrNodo){
 			return false;
 		}
 	}
-}
-
-/*char ResolverNodo(Nodo **ptrNodo){
-	int Izq = (*ptrNodo)->ptrIzq->dato;
-	int Der = (*ptrNodo)->ptrDer->dato;
-	switch((*ptrNodo)->dato){
-		case '+':
-			(*ptrNodo)->dato=(Izq-48)+(Der-48)+48;
-			break;
-		case '-':
-			(*ptrNodo)->dato=(Izq-48)-(Der-48)+48;
-			break;
-		case '*':
-			(*ptrNodo)->dato=(Izq-48)*(Der-48)+48;
-			break;
-		case '/':
-			(*ptrNodo)->dato=(Izq-48)/(Der-48)+48;
-			break;
-	}
-	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
-	(*ptrNodo)->ptrIzq=NULL;
-	free(ptrAux);
-	ptrAux=(*ptrNodo)->ptrDer;
-	(*ptrNodo)->ptrDer=NULL;
-	free(ptrAux);
-}*/
-
-bool EsNumero(char dato){
-	if(dato=='.' || dato=='0' || dato=='1' || dato=='2' || dato=='3' || dato=='4' || dato=='5' || dato=='6' || dato=='7' || dato=='8' || dato=='9'){
-		return true;
-	}else{
-		return false;
-	}
-}
-
-int NumeroMasLargo(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma vertical el arbol
-	Pila *ptrPila=NULL;
-	Nodo *ptrActual=ptrRaiz;
-	int EspInicio,i,EspMedio,nivelActual,nivelAux;
-	int NivelMax=Niveles(ptrRaiz);		//Mediante la funcion Niveles se calcula la cantidad de niveles que tiene el arbol.
-	nivelActual=0;
-	nivelAux=0;
-	int *ptrNivelAux=&nivelAux;
-	int *ptrNivelMax=&NivelMax;
-	int *ptrNivelActual=&nivelActual;
-	int digitos=CalculoDigitos(ptrActual->dato); 	//se imprimira el dato y pasara a la siguiente linea y restara en 1 la cantidad de niveles.
-	NivelMax--;
-	while(ptrActual->ptrIzq!=NULL){		//Mientras el puntero Actual tenga un hijo izquierdo, este verificara si tiene hijo derecho, en caso de no tener
-		if(ptrActual->ptrDer==NULL){	//se da por sentado que este es el ultimo dato del arbol. 
-			if(CalculoDigitos(ptrActual->ptrIzq->dato)>digitos){
-				digitos=CalculoDigitos(ptrActual->ptrIzq->dato);
-			}
-			break;
-		}else{
-			if(CalculoDigitos(ptrActual->ptrIzq->dato)>digitos){
-				digitos=CalculoDigitos(ptrActual->ptrIzq->dato);
-			}
-			if(CalculoDigitos(ptrActual->ptrDer->dato)>digitos){
-				digitos=CalculoDigitos(ptrActual->ptrDer->dato);
-			}
-			Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
-		}
-	}
-	return digitos;
-} 
-
-int CalculoDigitos(char dato[7]){
-	int digitos=0;
-	int i;
-	for(i=0;i<6;i++){
-		if(EsNumero(dato[i])==true){
-			digitos++;
-		}else{
-			break;
-		}
-	}
-	return digitos-1;
 }
 
