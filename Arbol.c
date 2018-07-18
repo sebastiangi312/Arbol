@@ -19,6 +19,7 @@ typedef struct pila{
 void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]);
 void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo);
 int CalculoDigitos(char dato[7]);
+float CharAFloat(char Arreglo[7]);
 Nodo* CopiarArbol(Nodo *ptrRaiz);
 Nodo* EliminarPila(Pila **ptrInicio);
 void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila);
@@ -112,7 +113,7 @@ void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo){			//Pila en la cual se guardar
 	}
 }
 
-int CalculoDigitos(char dato[7]){
+ int CalculoDigitos(char dato[7]){
 	int digitos=0;
 	int i;
 	for(i=0;i<6;i++){
@@ -125,7 +126,44 @@ int CalculoDigitos(char dato[7]){
 	return digitos-1;
 }
 
-
+float CharAFloat(char Arreglo[7]){
+	int digitos=0;
+	int i;
+	int aux=0;
+	int decimal=-1;
+	float total=0;
+	for(i=0;i<6;i++){
+		if(Arreglo[i]=='0' || Arreglo[i]=='1' || Arreglo[i]=='2' || Arreglo[i]=='3' || Arreglo[i]=='4' || Arreglo[i]=='5' || Arreglo[i]=='6' || Arreglo[i]=='7' || Arreglo[i]=='8' || Arreglo[i]=='9'){
+			digitos++;
+		}else{
+			if(Arreglo[i]=='.'){
+				decimal=i;
+				digitos++;
+			}else{
+				break;	
+			}
+		}
+		
+	}
+	if(decimal==-1){
+		for(i=digitos-1;i>=0;i--){
+			total=total+pow(10,i)*(Arreglo[aux]-48);
+			aux++;
+		}
+	}else{
+		for(i=decimal-1;i>=0;i--){
+			total=total+pow(10,i)*(Arreglo[aux]-48);
+			aux++;
+		}
+		int dif=decimal-(digitos-1);
+		aux++;
+		for(i=-1;i>=dif;i--){
+			total=total+pow(10,i)*(Arreglo[aux]-48);
+			aux++;
+		}
+	}
+	return total;
+}
 
 Nodo* CopiarArbol(Nodo *ptrRaiz){
 	Pila *ptrPila=NULL;
@@ -329,6 +367,7 @@ int NumeroMasLargo(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma vert
 } 
 
 void ResolverArbol(Nodo *ptrRaiz){
+	int i;
 	Pila *ptrPila = NULL;
 	Nodo *ptrRaizCopiado= CopiarArbol(ptrRaiz);
 	if(ptrRaizCopiado!=NULL){
@@ -347,7 +386,7 @@ void ResolverArbol(Nodo *ptrRaiz){
 				while(ptrActualCopiado!=ptrRaizCopiado){
 					bool Verificar = Verificacion(ptrActualCopiado);
 					if(Verificar==true){
-						//ResolverNodo(&ptrActualCopiado);
+						ResolverNodo(&ptrActualCopiado);
 						EncontrarSiguiente(&ptrActualCopiado,&ptrPila);
 						Nodo *ptrPadre=EliminarPila(&ptrPila);
 						if(ptrPadre!=NULL){
@@ -361,35 +400,44 @@ void ResolverArbol(Nodo *ptrRaiz){
 				}
 				bool Verificar = Verificacion(ptrActualCopiado);
 				if(Verificar==true){
-					//ResolverNodo(&ptrActualCopiado);
+					ResolverNodo(&ptrActualCopiado);
 					EncontrarSiguiente(&ptrActualCopiado,&ptrPila);
 					Nodo *ptrPadre=EliminarPila(&ptrPila);
 					if(ptrPadre!=NULL){
 						ptrActualCopiado=ptrPadre;
 					}
-					printf("El Arbol da como resultado %c\n",ptrActualCopiado->dato);
+					printf("El Arbol da como resultado ");
+					for(i=0;i<6;i++){
+						printf("%c",ptrActualCopiado->dato[i]);
+					}
+					printf("\n");
 				}
 			}	
 		}
 	}
 }
 
-char[7] ResolverNodo(Nodo **ptrNodo){
-	int Izq = (*ptrNodo)->ptrIzq->dato;
-	int Der = (*ptrNodo)->ptrDer->dato;
-	switch((*ptrNodo)->dato){
+char ResolverNodo(Nodo **ptrNodo){
+	float Izq = CharAFloat((*ptrNodo)->ptrIzq->dato);
+	float Der = CharAFloat((*ptrNodo)->ptrDer->dato);
+	char aux[7];
+	int i;
+	switch((*ptrNodo)->dato[0]){
 		case '+':
-			(*ptrNodo)->dato=(Izq-48)+(Der-48)+48;
+			sprintf(aux,"%f",Izq+Der);
 			break;
 		case '-':
-			(*ptrNodo)->dato=(Izq-48)-(Der-48)+48;
+			sprintf(aux,"%f",Izq-Der);
 			break;
 		case '*':
-			(*ptrNodo)->dato=(Izq-48)*(Der-48)+48;
+			sprintf(aux,"%f",Izq*Der);
 			break;
 		case '/':
-			(*ptrNodo)->dato=(Izq-48)/(Der-48)+48;
+			sprintf(aux,"%f",Izq/Der);
 			break;
+	}
+	for(i=0;i<6;i++){
+		(*ptrNodo)->dato[i]=aux[i];
 	}
 	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
 	(*ptrNodo)->ptrIzq=NULL;
@@ -494,4 +542,3 @@ bool Verificacion(Nodo *ptrNodo){
 		}
 	}
 }
-
