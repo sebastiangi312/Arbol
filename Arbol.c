@@ -151,6 +151,7 @@ float CharAFloat(char Arreglo[7]){
 				aux++;
 			}
 		}else{
+			aux++;
 			for(i=decimal-2;i>=0;i--){
 				total=total-pow(10,i)*(Arreglo[aux]-48);
 				aux++;
