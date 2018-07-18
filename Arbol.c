@@ -66,7 +66,7 @@ void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]){ 
 	int i=0;
 	if(*ptrRaiz==NULL){							
 		*ptrRaiz=malloc(sizeof(Nodo));			//Si la raiz no existe este la crea y hace que el puntero a la raiz y el
-		for(i=0;i<6;i++){					// puntero Actual(en el que se agregara el siguiente nodo) apunten a ella.
+		for(i=0;i<7;i++){					// puntero Actual(en el que se agregara el siguiente nodo) apunten a ella.
 			(*ptrRaiz)->dato[i]=dato[i];
 		}
 		(*ptrRaiz)->ptrDer=NULL;
@@ -77,7 +77,7 @@ void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]){ 
 			Nodo *ptrHijo=malloc(sizeof(Nodo));
 			ptrHijo->ptrDer=NULL;
 			ptrHijo->ptrIzq=NULL;
-			for(i=0;i<6;i++){
+			for(i=0;i<7;i++){
 				ptrHijo->dato[i]=dato[i];
 			}
 			(*ptrActual)->ptrIzq=ptrHijo;
@@ -85,7 +85,7 @@ void AgregarArbol(Nodo **ptrRaiz,Nodo **ptrActual,Pila **ptrPila,char dato[7]){ 
 			EliminarPila(ptrPila);
 		}else{
 			Nodo *ptrHijo=malloc(sizeof(Nodo)); //En caso de que el puntero actual tenga hijo izquierdo este creara el hijo derecho y ejecutara la funcion para reubicar el puntero actual.
-			for(i=0;i<6;i++){
+			for(i=0;i<7;i++){
 				ptrHijo->dato[i]=dato[i];
 			}				
 			ptrHijo->ptrDer=NULL;
@@ -116,7 +116,7 @@ void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo){			//Pila en la cual se guardar
  int CalculoDigitos(char dato[7]){
 	int digitos=0;
 	int i;
-	for(i=0;i<6;i++){
+	for(i=0;i<7;i++){
 		if(EsNumero(dato[i])==true){
 			digitos++;
 		}else{
@@ -132,37 +132,70 @@ float CharAFloat(char Arreglo[7]){
 	int aux=0;
 	int decimal=-1;
 	float total=0;
-	for(i=0;i<6;i++){
-		if(Arreglo[i]=='0' || Arreglo[i]=='1' || Arreglo[i]=='2' || Arreglo[i]=='3' || Arreglo[i]=='4' || Arreglo[i]=='5' || Arreglo[i]=='6' || Arreglo[i]=='7' || Arreglo[i]=='8' || Arreglo[i]=='9'){
-			digitos++;
-		}else{
-			if(Arreglo[i]=='.'){
-				decimal=i;
+	if(Arreglo[0]=='-'){
+		for(i=1;i<7;i++){
+			if(Arreglo[i]=='0' || Arreglo[i]=='1' || Arreglo[i]=='2' || Arreglo[i]=='3' || Arreglo[i]=='4' || Arreglo[i]=='5' || Arreglo[i]=='6' || Arreglo[i]=='7' || Arreglo[i]=='8' || Arreglo[i]=='9'){
 				digitos++;
 			}else{
-				break;	
+				if(Arreglo[i]=='.'){
+					decimal=i;
+					digitos++;
+				}else{
+					break;	
+				}		
+			}		
+		}	
+		if(decimal==-1){
+			for(i=digitos-2;i>=0;i--){
+				total=total-pow(10,i)*(Arreglo[aux]-48);
+				aux++;
+			}
+		}else{
+			for(i=decimal-2;i>=0;i--){
+				total=total-pow(10,i)*(Arreglo[aux]-48);
+				aux++;
+			}
+			int dif=decimal-(digitos-2);
+			aux++;
+			for(i=-1;i>=dif;i--){
+				total=total-pow(10,i)*(Arreglo[aux]-48);
+				aux++;
 			}
 		}
-		
-	}
-	if(decimal==-1){
-		for(i=digitos-1;i>=0;i--){
-			total=total+pow(10,i)*(Arreglo[aux]-48);
-			aux++;
-		}
+		return total;	
 	}else{
-		for(i=decimal-1;i>=0;i--){
-			total=total+pow(10,i)*(Arreglo[aux]-48);
+		for(i=0;i<7;i++){
+			if(Arreglo[i]=='0' || Arreglo[i]=='1' || Arreglo[i]=='2' || Arreglo[i]=='3' || Arreglo[i]=='4' || Arreglo[i]=='5' || Arreglo[i]=='6' || Arreglo[i]=='7' || Arreglo[i]=='8' || Arreglo[i]=='9'){
+				digitos++;
+			}else{
+				if(Arreglo[i]=='.'){
+					decimal=i;
+					digitos++;
+				}else{
+					break;	
+				}		
+			}		
+		}	
+		if(decimal==-1){
+			for(i=digitos-1;i>=0;i--){
+				total=total+pow(10,i)*(Arreglo[aux]-48);
+				aux++;
+			}
+		}else{
+			for(i=decimal-1;i>=0;i--){
+				total=total+pow(10,i)*(Arreglo[aux]-48);
+				aux++;
+			}
+			int dif=decimal-(digitos-1);
 			aux++;
+			for(i=-1;i>=dif;i--){
+				total=total+pow(10,i)*(Arreglo[aux]-48);
+				aux++;
+			}
 		}
-		int dif=decimal-(digitos-1);
-		aux++;
-		for(i=-1;i>=dif;i--){
-			total=total+pow(10,i)*(Arreglo[aux]-48);
-			aux++;
-		}
+		return total;	
 	}
-	return total;
+	
 }
 
 Nodo* CopiarArbol(Nodo *ptrRaiz){
@@ -232,7 +265,7 @@ void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila){	//Funcion que se encar
 }
 
 bool EsNumero(char dato){
-	if(dato=='.' || dato=='0' || dato=='1' || dato=='2' || dato=='3' || dato=='4' || dato=='5' || dato=='6' || dato=='7' || dato=='8' || dato=='9'){
+	if(dato=='-' || dato=='.' || dato=='0' || dato=='1' || dato=='2' || dato=='3' || dato=='4' || dato=='5' || dato=='6' || dato=='7' || dato=='8' || dato=='9'){
 		return true;
 	}else{
 		return false;
@@ -255,7 +288,7 @@ void ImprimirOperadorNum(char dato[7]){
 			printf("/");
 			break;
 		default:
-			for(i=0;i<6;i++){
+			for(i=0;i<7;i++){
 				if(EsNumero(dato[i])==true){
 					if(dato[i]!='.'){
 						printf("%d",dato[i]-48);
@@ -407,7 +440,7 @@ void ResolverArbol(Nodo *ptrRaiz){
 						ptrActualCopiado=ptrPadre;
 					}
 					printf("El Arbol da como resultado ");
-					for(i=0;i<6;i++){
+					for(i=0;i<7;i++){
 						printf("%c",ptrActualCopiado->dato[i]);
 					}
 					printf("\n");
@@ -436,7 +469,7 @@ char ResolverNodo(Nodo **ptrNodo){
 			sprintf(aux,"%f",Izq/Der);
 			break;
 	}
-	for(i=0;i<6;i++){
+	for(i=0;i<7;i++){
 		(*ptrNodo)->dato[i]=aux[i];
 	}
 	Nodo *ptrAux=(*ptrNodo)->ptrIzq;
@@ -508,8 +541,10 @@ bool Verificacion(Nodo *ptrNodo){
 				Der=false;
 				break;
 			case '-':
-				Der=false;
-				break;
+				if(!EsNumero(ptrNodo->ptrDer->dato[1])){
+					Der=false;
+					break;	
+				}
 			case '*':
 				Der=false;
 				break;
@@ -524,7 +559,9 @@ bool Verificacion(Nodo *ptrNodo){
 				Izq=false;
 				break;
 			case '-':
-				Izq=false;
+				if(!EsNumero(ptrNodo->ptrIzq->dato[1])){
+					Izq=false;	
+				}
 				break;
 			case '*':
 				Izq=false;
