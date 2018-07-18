@@ -445,6 +445,8 @@ void ResolverArbol(Nodo *ptrRaiz){
 						printf("%c",ptrActualCopiado->dato[i]);
 					}
 					printf("\n");
+				}else{
+					printf("El Arbol da fallo\n");
 				}
 			}	
 		}
@@ -544,8 +546,8 @@ bool Verificacion(Nodo *ptrNodo){
 			case '-':
 				if(!EsNumero(ptrNodo->ptrDer->dato[1])){
 					Der=false;
-					break;	
 				}
+				break;
 			case '*':
 				Der=false;
 				break;
