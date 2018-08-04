@@ -10,6 +10,11 @@ typedef struct nodo{				//Estructura de tipo nodo en la cual se almacenan el dat
 	struct nodo *ptrDer;
 }Nodo;
 
+typedef struct NodoArreglo{
+	struct nodo *ptrBase;
+	struct nodo *ptrVariable;
+}Arbol;
+
 typedef struct pila{
 	int size;				//Pila en la cual se almacenaran las referencias a los padres
 	struct nodo *ptrAnterior;
@@ -21,6 +26,7 @@ void AgregarPila(Pila **ptrInicio,Nodo *ptrNodo);
 int CalculoDigitos(char dato[7]);
 float CharAFloat(char Arreglo[7]);
 Nodo* CopiarArbol(Nodo *ptrRaiz);
+Nodo* CrearArbol(int NivelesArbol,Nodo **ptrVariable);
 Nodo* EliminarPila(Pila **ptrInicio);
 void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila);
 bool EsNumero(char dato);
@@ -34,31 +40,33 @@ void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *Nive
 bool Verificacion(Nodo *ptrNodo);
 
 int main() {
-	Pila *ptrPila=NULL;
+	srand(time(NULL));
 	Nodo *ptrRaiz=NULL;
-	Nodo *ptrActual=NULL;
-	int Eleccion;
-	char dato[7];
-	printf("Digite 1 para agregar un dato u operador,2 para Mostrar el arbol,3 para resolver el arbol y 4 para acabar la ejecucion\n");
+	Nodo *ptrVariable=NULL;
+	int Eleccion,dato,i;
+	printf("Digite 1 para crear un arbol,2 para Mostrar el arbol,3 para resolver el arbol y 4 para acabar la ejecucion\n");
 	scanf("%d",&Eleccion);
 	while(Eleccion!=4){
 		switch(Eleccion){
 			case 1:
-				printf("Ingrese el dato\n");
-				scanf("%s",&dato);
-				AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+				printf("Ingrese el numero de niveles\n");
+				scanf("%d",&dato);
+				ptrRaiz=CrearArbol(dato,&ptrVariable);
 				break;
 			case 2:
 				ImprimirVertical(ptrRaiz);
 				break;
 			case 3:
-				ResolverArbol(ptrRaiz);
+				for(i=1;i<10;i++){
+					char aux = i+'0';
+					ptrVariable->dato[0]=aux;
+					ResolverArbol(ptrRaiz);	
+				}
 				break;
 		}
-		printf("Digite 1 para agregar un dato,2 para Mostrar el arbol,3 para resolverlo y 4 para acabar con la ejecucion\n");
+		printf("Digite 1 para crear un arbol,2 para Mostrar el arbol,3 para resolverlo y 4 para acabar con la ejecucion\n");
 		scanf("%d",&Eleccion);
-	}
-	
+	}	
 	return 0;
 }
 
@@ -231,6 +239,115 @@ Nodo* CopiarArbol(Nodo *ptrRaiz){
 	return ptrRaizNuevo;
 }
 
+Nodo* CrearArbol(int NivelesArbol,Nodo **ptrVariable){
+	Pila *ptrPila=NULL;
+	Nodo *ptrActual=NULL;
+	Nodo *ptrRaiz=NULL;
+	int i;
+	int NivelesOperador = pow(2,NivelesArbol)/2-1;
+	int NivelesNumeros = NivelesOperador+1;
+	int variable = rand() % 2;
+	bool aux;
+	if(variable==0){
+		aux=false;
+	}else{
+		aux=true;
+	}
+	char dato[7];
+	for(i=0;i<NivelesOperador;i++){
+		int numero = rand() % 4;
+			switch(numero){
+				case 0:
+					dato[0] = '+';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 1:
+					dato[0] = '-';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 2:
+					dato[0] = '*';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 3:
+					dato[0] = '/';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+			}	
+		}	
+	for(i=0;i<NivelesNumeros;i++){
+		int numero = rand() % 9 + 1;
+		if(aux && variable==1){
+			dato[0] = 'X';
+			Nodo *ptrAux=ptrActual;
+			AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+			if(ptrAux==ptrActual){
+				if(ptrAux->ptrDer==NULL){
+					*ptrVariable=ptrAux->ptrIzq;
+				}
+			}else{
+				*ptrVariable=ptrAux->ptrDer;
+			}
+			aux=false;
+		}else{
+			switch(numero){
+				case 1:
+					dato[0] = '1';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 2:
+					dato[0] = '2';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 3:
+					dato[0] = '3';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 4:
+					dato[0] = '4';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 5:
+					dato[0] = '5';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 6:
+					dato[0] = '6';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 7:
+					dato[0] = '7';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 8:
+					dato[0] = '8';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+				case 9:
+					dato[0] = '9';
+					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
+					break;
+			}
+			if(aux || variable==1){
+				aux=false;
+			}else{
+				if(i==NivelesOperador-2){
+					variable=1;
+					aux=true;
+				}else{
+					variable = rand() % 2;
+					if(variable==0){
+						aux=false;
+					}else{
+						aux=true;
+					}	
+				}		
+			}
+		}
+	}
+	return ptrRaiz;
+}
+
 Nodo* EliminarPila(Pila **ptrInicio){				//Si la Pila tiene datos devuelve el ultimo y en caso de estar vacia devuelve NULL.
 	if(*ptrInicio!=NULL){
 		Nodo *ptrAux=(*ptrInicio)->ptrAnterior;
@@ -287,6 +404,9 @@ void ImprimirOperadorNum(char dato[7]){
 			break;
 		case '/':
 			printf("/");
+			break;
+		case'X':
+			printf("X");
 			break;
 		default:
 			for(i=0;i<7;i++){
@@ -398,7 +518,9 @@ int NumeroMasLargo(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma vert
 		}
 	}
 	return digitos;
-} 
+}
+
+
 
 void ResolverArbol(Nodo *ptrRaiz){
 	int i;
@@ -428,7 +550,6 @@ void ResolverArbol(Nodo *ptrRaiz){
 						}
 					}else{
 						printf("El Arbol es Invalido\n");
-						break;
 						break;
 					}
 				}
