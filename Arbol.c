@@ -10,7 +10,7 @@ typedef struct nodo{				//Estructura de tipo nodo en la cual se almacenan el dat
 	struct nodo *ptrDer;
 }Nodo;
 
-typedef struct NodoArreglo{
+typedef struct NodoArbol{
 	struct nodo *ptrBase;
 	struct nodo *ptrVariable;
 }Arbol;
@@ -34,37 +34,49 @@ void ImprimirOperadorNum(char dato[7]);
 void ImprimirVertical(Nodo *ptrRaiz);
 int Niveles(Nodo *ptrRaiz);
 int NumeroMasLargo(Nodo *ptrRaiz);
-void ResolverArbol(Nodo *ptrRaiz);
+void Recorrer(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos);
+float ResolverArbol(Nodo *ptrRaiz);
 char ResolverNodo(Nodo **ptrNodo);
 void Reubicar(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos);
 bool Verificacion(Nodo *ptrNodo);
 
 int main() {
 	srand(time(NULL));
-	Nodo *ptrRaiz=NULL;
-	Nodo *ptrVariable=NULL;
-	int Eleccion,dato,i;
-	printf("Digite 1 para crear un arbol,2 para Mostrar el arbol,3 para resolver el arbol y 4 para acabar la ejecucion\n");
+	int Eleccion,niveles,i,j,cantidad,indice,numerosFuncion;
+	printf("Digite la cantidad de arboles a crear\n");
+	scanf("%d",&cantidad);
+	Arbol ArregloArboles[cantidad];
+	printf("Ingrese el numero de niveles que tendran estos arboles\n");
+	scanf("%d",&niveles);
+	for(i=0;i<cantidad;i++){
+		(ArregloArboles[i]).ptrBase=CrearArbol(niveles,&(ArregloArboles[i]).ptrVariable);
+	}
+	printf("Cuantos numeros de la funcion quiere evaluar\n");
+	scanf("%d",&numerosFuncion);
+	float matrizFuncion[cantidad][numerosFuncion];
+	printf("Digite 1 para Imprimir un Arbol en especifico,2 para Resolverlos y 3 para Salir\n");
 	scanf("%d",&Eleccion);
-	while(Eleccion!=4){
+	while(Eleccion!=3){
 		switch(Eleccion){
 			case 1:
-				printf("Ingrese el numero de niveles\n");
-				scanf("%d",&dato);
-				ptrRaiz=CrearArbol(dato,&ptrVariable);
+				printf("Digite el indice del arbol a imprimir\n");
+				scanf("%d",&indice);
+				ImprimirVertical((ArregloArboles[indice]).ptrBase);
 				break;
-			case 2:
-				ImprimirVertical(ptrRaiz);
-				break;
-			case 3:
-				for(i=1;i<10;i++){
-					char aux = i+'0';
-					ptrVariable->dato[0]=aux;
-					ResolverArbol(ptrRaiz);	
+			case 2:	
+				for(i=0;i<cantidad;i++){
+					for(j=1;j<=numerosFuncion;j++){
+						char aux = j+'0';
+						((ArregloArboles[i]).ptrVariable)->dato[0]=aux;
+						matrizFuncion[i][j] = ResolverArbol((ArregloArboles[i]).ptrBase);	
+						printf("%f ",matrizFuncion[i][j]);
+					}
+					((ArregloArboles[i]).ptrVariable)->dato[0]='X';
+					printf("\n");
 				}
 				break;
 		}
-		printf("Digite 1 para crear un arbol,2 para Mostrar el arbol,3 para resolverlo y 4 para acabar con la ejecucion\n");
+		printf("Digite 1 para Imprimir un Arbol en especifico,2 para Resolverlos y 3 para Salir\n");
 		scanf("%d",&Eleccion);
 	}	
 	return 0;
@@ -230,7 +242,7 @@ Nodo* CopiarArbol(Nodo *ptrRaiz){
 			}else{
 				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrIzq->dato);
 				AgregarArbol(&ptrRaizNuevo,&ptrActualNuevo,&ptrPilaNueva,ptrActual->ptrDer->dato);
-				Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
+				Recorrer(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
 			}
 		}
 	}else{
@@ -279,6 +291,7 @@ Nodo* CrearArbol(int NivelesArbol,Nodo **ptrVariable){
 		int numero = rand() % 9 + 1;
 		if(aux && variable==1){
 			dato[0] = 'X';
+			dato[1]='P';
 			Nodo *ptrAux=ptrActual;
 			AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
 			if(ptrAux==ptrActual){
@@ -291,6 +304,7 @@ Nodo* CrearArbol(int NivelesArbol,Nodo **ptrVariable){
 			aux=false;
 		}else{
 			switch(numero){
+				dato[1]='P';
 				case 1:
 					dato[0] = '1';
 					AgregarArbol(&ptrRaiz,&ptrActual,&ptrPila,dato);
@@ -514,21 +528,46 @@ int NumeroMasLargo(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma vert
 			if(CalculoDigitos(ptrActual->ptrDer->dato)>digitos){
 				digitos=CalculoDigitos(ptrActual->ptrDer->dato);
 			}
-			Reubicar(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
+			Recorrer(&ptrActual,&ptrPila,ptrNivelMax,ptrNivelActual,ptrNivelAux,0);
 		}
 	}
 	return digitos;
 }
 
+void Recorrer(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos){
+	Nodo *ptrPadre=EliminarPila(ptrPila);	
+	int NE,i;
+	if(ptrPadre==NULL){
+		*NivelMax=*NivelMax-1;
+		*nivel=*nivel+1;
+		for(i=0;i<*nivel;i++){
+			AgregarPila(ptrPila,*ptrActual);
+			*ptrActual=(*ptrActual)->ptrIzq;
+			*NivelAux=*NivelAux+1;
+		}
+	}else{
+		if(ptrPadre->ptrDer!=*ptrActual){			
+			AgregarPila(ptrPila,ptrPadre);			
+			*ptrActual=ptrPadre->ptrDer;
+			for(i=0;i<*nivel-*NivelAux;i++){
+				AgregarPila(ptrPila,*ptrActual);
+				*ptrActual=(*ptrActual)->ptrIzq;
+			}
+			*NivelAux=*nivel;
+		}else{
+			*ptrActual=ptrPadre;					
+			*NivelAux=*NivelAux-1;
+			Recorrer(ptrActual,ptrPila,NivelMax,nivel,NivelAux,0);
+		}
+	}
+}
 
-
-void ResolverArbol(Nodo *ptrRaiz){
+float ResolverArbol(Nodo *ptrRaiz){
 	int i;
 	Pila *ptrPila = NULL;
 	Nodo *ptrRaizCopiado= CopiarArbol(ptrRaiz);
 	if(ptrRaizCopiado!=NULL){
 		Nodo *ptrActualCopiado=ptrRaizCopiado;
-		ImprimirVertical(ptrRaizCopiado);
 		while(ptrActualCopiado->ptrIzq!=NULL){
 			AgregarPila(&ptrPila,ptrActualCopiado);
 			ptrActualCopiado=ptrActualCopiado->ptrIzq;
@@ -561,17 +600,15 @@ void ResolverArbol(Nodo *ptrRaiz){
 					if(ptrPadre!=NULL){
 						ptrActualCopiado=ptrPadre;
 					}
-					printf("El Arbol da como resultado ");
-					for(i=0;i<7;i++){
-						printf("%c",ptrActualCopiado->dato[i]);
-					}
-					printf("\n");
+					return CharAFloat(ptrActualCopiado->dato);
 				}else{
 					printf("El Arbol da fallo\n");
+					return 0;
 				}
 			}	
 		}
 	}
+	
 }
 
 char ResolverNodo(Nodo **ptrNodo){
