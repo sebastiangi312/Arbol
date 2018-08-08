@@ -4,6 +4,8 @@
 #include <math.h>
 #include <stdbool.h>
 
+//Errores A solucionar con niveles de 4, verificar bien la MEZCLA
+
 typedef struct nodo{				//Estructura de tipo nodo en la cual se almacenan el dato y las referencias a los hijos
 	char dato[7];
 	struct nodo *ptrIzq;
@@ -32,6 +34,7 @@ void EncontrarSiguiente(Nodo **ptrActual,Pila **ptrPila);
 bool EsNumero(char dato);
 void ImprimirOperadorNum(char dato[7]);
 void ImprimirVertical(Nodo *ptrRaiz);
+Nodo* Mezcla(Nodo *ptrRaiz,int niveles);
 int Niveles(Nodo *ptrRaiz);
 int NumeroMasLargo(Nodo *ptrRaiz);
 void Recorrer(Nodo **ptrActual,Pila **ptrPila,int *NivelMax,int *nivel,int *NivelAux,int digitos);
@@ -51,12 +54,17 @@ int main() {
 	for(i=0;i<cantidad;i++){
 		(ArregloArboles[i]).ptrBase=CrearArbol(niveles,&(ArregloArboles[i]).ptrVariable);
 	}
-	printf("Cuantos numeros de la funcion quiere evaluar\n");
+	printf("Cuantos numeros(n) de la funcion quiere evaluar\n");
 	scanf("%d",&numerosFuncion);
+	float arregloNumerosFuncion[numerosFuncion];
+	printf("A continuacion ingrese los valores de la funcion en 1,2...n\n");
+	for(i=0;i<numerosFuncion;i++){
+		scanf("%f",&arregloNumerosFuncion[i]); 
+	}
 	float matrizFuncion[cantidad][numerosFuncion];
 	printf("Digite 1 para Imprimir un Arbol en especifico,2 para Resolverlos y 3 para Salir\n");
 	scanf("%d",&Eleccion);
-	while(Eleccion!=3){
+	while(Eleccion!=4){
 		switch(Eleccion){
 			case 1:
 				printf("Digite el indice del arbol a imprimir\n");
@@ -75,6 +83,8 @@ int main() {
 					printf("\n");
 				}
 				break;
+			case 3:
+				ImprimirVertical(Mezcla(ArregloArboles[0].ptrBase,niveles));
 		}
 		printf("Digite 1 para Imprimir un Arbol en especifico,2 para Resolverlos y 3 para Salir\n");
 		scanf("%d",&Eleccion);
@@ -288,7 +298,7 @@ Nodo* CrearArbol(int NivelesArbol,Nodo **ptrVariable){
 			}	
 		}	
 	for(i=0;i<NivelesNumeros;i++){
-		int numero = rand() % 9 + 1;
+		int numero = rand() % 10 + 1;
 		if(aux && variable==1){
 			dato[0] = 'X';
 			dato[1]='P';
@@ -489,6 +499,22 @@ void ImprimirVertical(Nodo *ptrRaiz){	//Funcion encargada de imprimir de forma v
 		}
 		printf("\n");
 	} 
+}
+
+Nodo* Mezcla(Nodo *ptrRaiz,int niveles){
+	Nodo *ptrNodoActual=ptrRaiz;
+	int i;
+	int nivelArbol = rand() % (niveles+1) + 1;
+	for(i=0;i<nivelArbol;i++){
+		int izqDer = rand() % 2;
+		if(izqDer==0){
+			ptrNodoActual=ptrNodoActual->ptrIzq;
+		}else{
+			ptrNodoActual=ptrNodoActual->ptrDer;
+		}
+	}
+	Nodo *ptrNodoCopiado=CopiarArbol(ptrNodoActual);
+	return ptrNodoCopiado;
 }
 
 int Niveles(Nodo *ptrRaiz){		//funcion que calcula y devuelve el numero de niveles.
